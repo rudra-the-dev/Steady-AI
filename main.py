@@ -140,7 +140,7 @@ st.markdown("""
         border-color: #D6CDBF !important;
     }
 
-    /* Overlay text styling */
+    /* Card overlay text styling - refined for visibility */
     .card-overlay {
         position: absolute;
         top: 0;
@@ -153,6 +153,22 @@ st.markdown("""
         justify-content: space-between;
         pointer-events: none;
         z-index: 2;
+    }
+
+    /* Target the button's focus/active state with blue boundary */
+    div.stButton > button:focus, 
+    div.stButton > button:active {
+        border: 2px solid #0066FF !important;
+        box-shadow: 0 0 0 2px rgba(0, 102, 255, 0.2) !important;
+        outline: none !important;
+    }
+    
+    /* Also show boundary on hover for clarity as a button */
+    div.stButton > button:hover {
+        transform: translateY(-5px) !important;
+        background-color: #E9E1D3 !important;
+        box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3) !important;
+        border: 2px solid #0066FF !important;
     }
 </style>
 """, unsafe_allow_html=True)
