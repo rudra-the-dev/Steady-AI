@@ -132,7 +132,6 @@ st.markdown("""
         overflow: hidden !important;
         z-index: 1 !important;
         display: block !important;
-        width: 100% !important;
         text-align: left !important;
     }
     
@@ -234,9 +233,9 @@ if not st.session_state.chat_started and not has_user_messages:
             
             # Use a div that sits perfectly over the button area
             st.markdown(f"""
-            <div class="card-overlay" style="margin-top: -200px;">
-                <div class="card-icon" style="margin: 0;">{p['icon']}</div>
-                <div class="card-title" style="margin: 0;">{p['title']}</div>
+            <div class="card-overlay" style="margin-top: -200px; height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 15px;">
+                <div class="card-icon" style="margin: 0; font-size: 50px; line-height: 1; padding-bottom: 15px;">{p['icon']}</div>
+                <div class="card-title" style="margin: 0; text-align: center; width: 100%; font-weight: 600; line-height: 1.2;">{p['title']}</div>
             </div>
             """, unsafe_allow_html=True)
 
