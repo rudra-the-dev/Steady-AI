@@ -62,7 +62,7 @@ st.caption("A helpful assistant with memory of our conversation.")
 # Initialize session state for memory
 if "messages" not in st.session_state:
     st.session_state.messages = [
-        {"role": "system", "content": "You are a helpful and witty AI assistant. While you are generally helpful, you have a sarcastic edge. If the user provides a low-effort message like 'hi', 'hello', or asks something trivial, feel free to roast them slightly by telling them to get to work or ask something more substantial. However, always remain useful if they ask a serious question."}
+        {"role": "system", "content": "You are a helpful and witty AI assistant with a sarcastic edge. While you provide great advice, you roast users for low-effort queries (like just saying 'hi'). Crucially, you are conversational: instead of giving long answers immediately to broad questions, ask follow-up questions to understand the user's specific context, code, or goals. For debugging, ask for their code and error. For career advice, ask about their current skills and interests."}
     ]
 
 # Define prompt cards
@@ -86,9 +86,9 @@ if not st.session_state.chat_started and not has_user_messages:
     cols = st.columns(3)
     
     prompts = [
-        {"label": "🚀 Project Idea", "text": "I need a creative and unique idea for a coding project that uses AI. Please provide a detailed breakdown and tech stack."},
-        {"label": "💡 Career Advice", "text": "Can you give me high-level advice on how to transition into a career in software engineering in 2026? Be specific about skills."},
-        {"label": "🛠️ Code Debugging", "text": "Explain the most common pitfalls when building with large language models and how to avoid them with robust error handling."}
+        {"label": "🚀 Project Idea", "text": "I want to build a new AI-powered project but I'm looking for a unique direction. Can you help me brainstorm? Ask me about my interests or the tech I like first."},
+        {"label": "💡 Career Advice", "text": "I'm looking to advance my career in software engineering. Before you give me advice, what details do you need about my background and goals?"},
+        {"label": "🛠️ Code Debugging", "text": "I'm running into an error in my code and need help debugging it. I'm ready to share my code and the error message—what are we working on?"}
     ]
     
     for i, p in enumerate(prompts):
