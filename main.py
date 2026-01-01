@@ -35,10 +35,15 @@ def is_rate_limit_error(exception: BaseException) -> bool:
 )
 def get_ai_response(messages):
     try:
+        # Use a list comprehension to send only necessary fields to reduce payload size
+        minimal_messages = [
+            {"role": m["role"], "content": m["content"]} 
+            for m in messages
+        ]
         response = client.chat.completions.create(
             model=MODEL,
-            messages=messages,
-            max_completion_tokens=4096
+            messages=minimal_messages,
+            max_completion_tokens=2048 # Reduced from 4096 to save bandwidth
         )
         content = response.choices[0].message.content
         return content if content is not None else ""
