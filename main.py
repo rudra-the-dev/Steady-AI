@@ -24,7 +24,7 @@ def is_rate_limit_error(exception: BaseException) -> bool:
         or "RATELIMIT_EXCEEDED" in error_msg
         or "quota" in error_msg.lower()
         or "rate limit" in error_msg.lower()
-        or (hasattr(exception, "status_code") and exception.status_code == 429)
+        or (isinstance(exception, Exception) and hasattr(exception, "status_code") and getattr(exception, "status_code") == 429)
     )
 
 @retry(
@@ -40,7 +40,8 @@ def get_ai_response(messages):
             messages=messages,
             max_completion_tokens=4096
         )
-        return response.choices[0].message.content
+        content = response.choices[0].message.content
+        return content if content is not None else ""
     except Exception as e:
         if "FREE_CLOUD_BUDGET_EXCEEDED" in str(e):
             st.error("Cloud budget exceeded. Please check your Replit account.")
