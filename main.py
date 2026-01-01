@@ -56,6 +56,106 @@ def get_ai_response(messages):
 # Streamlit UI Configuration
 st.set_page_config(page_title="AI Chat Assistant", page_icon="💬", layout="centered")
 
+# Custom CSS to match the card UI
+st.markdown("""
+<style>
+    /* Main container styling */
+    .main {
+        background-color: #F8F5F0;
+    }
+    
+    /* Card container */
+    .card-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+        margin-top: 30px;
+    }
+    
+    /* Individual Card styling */
+    .custom-card {
+        background-color: #EFE9DE;
+        border-radius: 15px;
+        padding: 25px;
+        width: 200px;
+        height: 250px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        border: none;
+        text-align: left;
+    }
+    
+    .custom-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .card-icon {
+        font-size: 30px;
+        margin-bottom: 15px;
+        align-self: flex-end;
+    }
+    
+    .card-title {
+        font-family: 'Serif', 'Georgia', serif;
+        font-size: 18px;
+        font-weight: 500;
+        color: #2D3E33;
+        line-height: 1.3;
+    }
+    
+    /* Hero section styling */
+    .hero-card {
+        background-color: #FAF7F2;
+        border-radius: 20px;
+        padding: 40px;
+        margin-bottom: 30px;
+        border: 1px solid #E6E0D4;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .hero-text {
+        max-width: 60%;
+    }
+    
+    .hero-title {
+        font-family: 'Serif', 'Georgia', serif;
+        font-size: 32px;
+        color: #2D3E33;
+        margin-bottom: 10px;
+    }
+    
+    /* Hide default streamlit button styling for cards */
+    div.stButton > button {
+        background-color: #EFE9DE !important;
+        border-radius: 15px !important;
+        padding: 25px !important;
+        width: 100% !important;
+        height: 220px !important;
+        border: none !important;
+        text-align: left !important;
+        display: block !important;
+        transition: transform 0.2s !important;
+    }
+    
+    div.stButton > button:hover {
+        transform: translateY(-5px) !important;
+        background-color: #E9E1D3 !important;
+    }
+    
+    /* Message styling */
+    .stChatMessage {
+        background-color: transparent !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 st.title("💬 AI Chat Assistant")
 st.caption("A helpful assistant with memory of our conversation.")
 
@@ -82,21 +182,46 @@ for message in st.session_state.messages:
 has_user_messages = any(msg["role"] == "user" for msg in st.session_state.messages)
 
 if not st.session_state.chat_started and not has_user_messages:
+    # Hero section
+    st.markdown("""
+    <div class="hero-card">
+        <div class="hero-text">
+            <h1 class="hero-title">Learn about something new</h1>
+            <p>I'm excited to explore a new topic with you. What would you like to learn about?</p>
+        </div>
+        <div style="font-size: 80px;">🎒</div>
+    </div>
+    """, unsafe_allow_html=True)
+    
     st.write("### Try one of these to get started:")
-    cols = st.columns(3)
     
     prompts = [
-        {"label": "🚀 Project Idea", "text": "I want ideas for a project, but don’t suggest anything yet.\nFirst, ask me a series of specific questions to understand my situation properly. Ask them step by step, not all at once.\nYour questions should cover:\nmy interests and problems I care about\nmy current skills and tools I know\nmy experience level (beginner/intermediate/advanced)\nhow much time I can realistically give\nwhether the project is for learning, competition, portfolio, business, or fun\nconstraints like budget, team size, device, or platform\nAfter I answer all the questions, analyze my responses and:\nsuggest 3–5 project ideas that actually fit me\nexplain why each idea is suitable\nmention the main challenges of each idea\nrecommend one best project to start with\noutline clear next steps to begin (tech stack, first milestone, etc.)\nAvoid generic ideas. Be practical, specific, and honest."},
-        {"label": "💡 Career Advice", "text": "I want career guidance, but don’t give advice immediately.\nFirst, ask me a series of clear and specific questions to understand me properly. Ask them step by step, not all at once.\nYour questions should cover:\nwhat I’m interested in and enjoy doing\nwhat I’m good at and what skills I already have\nwhat I dislike or want to avoid\nwhat kind of work environment suits me\nmy education level and practical limitations\nmy long-term goals, income expectations, and lifestyle preferences\nAfter you finish asking questions and I answer them, analyze my responses honestly and:\nsuggest 3–5 realistic career options\nexplain why each option fits or doesn’t fit me\npoint out any contradictions or unrealistic assumptions in my thinking\nsuggest concrete next steps for the best options\nBe direct, practical, and honest. No motivational fluff."},
-        {"label": "🛠️ Code Debugging", "text": "I need help debugging some code, but don’t jump to conclusions yet.\nFirst, ask me a sequence of focused questions to fully understand the problem. Ask them step by step, not all at once.\nYour questions should cover:\nthe programming language and environment\nwhat the code is supposed to do\nwhat it is actually doing\nexact error messages or unexpected behavior\nwhere and when the problem occurs\nwhat I’ve already tried\nAfter you have enough information and I answer, then:\nidentify the most likely root cause(s)\nexplain the bug in simple terms\nshow the corrected code\nexplain why the fix works\nsuggest how to prevent this type of bug in the future\nBe precise and technical. Don’t guess. Don’t oversimplify."}
+        {"label": "🚀 Project Idea", "icon": "🎒", "title": "The joy of creative projects", "text": "I want ideas for a project, but don’t suggest anything yet.\nFirst, ask me a series of specific questions to understand my situation properly. Ask them step by step, not all at once.\nYour questions should cover:\nmy interests and problems I care about\nmy current skills and tools I know\nmy experience level (beginner/intermediate/advanced)\nhow much time I can realistically give\nwhether the project is for learning, competition, portfolio, business, or fun\nconstraints like budget, team size, device, or platform\nAfter I answer all the questions, analyze my responses and:\nsuggest 3–5 project ideas that actually fit me\nexplain why each idea is suitable\nmention the main challenges of each idea\nrecommend one best project to start with\noutline clear next steps to begin (tech stack, first milestone, etc.)\nAvoid generic ideas. Be practical, specific, and honest."},
+        {"label": "💡 Career Advice", "icon": "🧠", "title": "Tapping into your curiosity", "text": "I want career guidance, but don’t give advice immediately.\nFirst, ask me a series of clear and specific questions to understand me properly. Ask them step by step, not all at once.\nYour questions should cover:\nwhat I’m interested in and enjoy doing\nwhat I’m good at and what skills I already have\nwhat I dislike or want to avoid\nwhat kind of work environment suits me\nmy education level and practical limitations\nmy long-term goals, income expectations, and lifestyle preferences\nAfter you finish asking questions and I answer them, analyze my responses honestly and:\nsuggest 3–5 realistic career options\nexplain why each option fits or doesn’t fit me\npoint out any contradictions or unrealistic assumptions in my thinking\nsuggest concrete next steps for the best options\nBe direct, practical, and honest. No motivational fluff."},
+        {"label": "🛠️ Code Debugging", "icon": "🛠️", "title": "Solving tech challenges", "text": "I need help debugging some code, but don’t jump to conclusions yet.\nFirst, ask me a sequence of focused questions to fully understand the problem. Ask them step by step, not all at once.\nYour questions should cover:\nthe programming language and environment\nwhat the code is supposed to do\nwhat it is actually doing\nexact error messages or unexpected behavior\nwhere and when the problem occurs\nwhat I’ve already tried\nAfter you have enough information and I answer, then:\nidentify the most likely root cause(s)\nexplain the bug in simple terms\nshow the corrected code\nexplain why the fix works\nsuggest how to prevent this type of bug in the future\nBe precise and technical. Don’t guess. Don’t oversimplify."}
     ]
     
+    cols = st.columns(3)
     for i, p in enumerate(prompts):
-        with cols[i % 3]:
-            if st.button(p["label"], key=f"btn_{i}", disabled=st.session_state.is_thinking):
+        with cols[i]:
+            # Create a button with custom inner HTML for the look
+            button_content = f"""
+            <div style="height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+                <div style="font-size: 30px; text-align: right;">{p['icon']}</div>
+                <div style="font-family: serif; font-size: 18px; color: #2D3E33; line-height: 1.2;">{p['title']}</div>
+            </div>
+            """
+            if st.button(p["label"], key=f"btn_{i}", help=p["title"], disabled=st.session_state.is_thinking):
                 st.session_state.chat_started = True
                 st.session_state.messages.append({"role": "user", "content": p["text"]})
                 st.rerun()
+            # Overlay custom label over button using markdown
+            st.markdown(f"""
+            <div style="margin-top: -220px; pointer-events: none; padding: 25px; height: 220px; display: flex; flex-direction: column; justify-content: space-between;">
+                <div style="font-size: 30px; text-align: right;">{p['icon']}</div>
+                <div style="font-family: serif; font-size: 18px; color: #2D3E33; line-height: 1.2;">{p['title']}</div>
+            </div>
+            """, unsafe_allow_html=True)
 
 # Chat input
 if prompt := st.chat_input("How can I help you today?", disabled=st.session_state.is_thinking):
