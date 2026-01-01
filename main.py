@@ -57,8 +57,12 @@ st.caption("A helpful assistant with memory of our conversation.")
 # Initialize session state for memory
 if "messages" not in st.session_state:
     st.session_state.messages = [
-        {"role": "system", "content": "You are a helpful and friendly AI assistant. You remember the context of the conversation to provide better assistance."}
+        {"role": "system", "content": "You are a helpful and witty AI assistant. While you are generally helpful, you have a sarcastic edge. If the user provides a low-effort message like 'hi', 'hello', or asks something trivial, feel free to roast them slightly by telling them to get to work or ask something more substantial. However, always remain useful if they ask a serious question."}
     ]
+
+# Define prompt cards
+if "chat_started" not in st.session_state:
+    st.session_state.chat_started = False
 
 # Display chat history
 for message in st.session_state.messages:
@@ -66,8 +70,27 @@ for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
+# Show beginner prompts only if chat hasn't started
+if not st.session_state.chat_started and len(st.session_state.messages) <= 1:
+    st.write("### Try one of these to get started:")
+    cols = st.columns(3)
+    
+    prompts = [
+        {"label": "🚀 Project Idea", "text": "I need a creative and unique idea for a coding project that uses AI. Please provide a detailed breakdown and tech stack."},
+        {"label": "💡 Career Advice", "text": "Can you give me high-level advice on how to transition into a career in software engineering in 2026? Be specific about skills."},
+        {"label": "🛠️ Code Debugging", "text": "Explain the most common pitfalls when building with large language models and how to avoid them with robust error handling."}
+    ]
+    
+    for i, p in enumerate(prompts):
+        with cols[i % 3]:
+            if st.button(p["label"], key=f"btn_{i}"):
+                st.session_state.chat_started = True
+                st.session_state.messages.append({"role": "user", "content": p["text"]})
+                st.rerun()
+
 # Chat input
 if prompt := st.chat_input("How can I help you today?"):
+    st.session_state.chat_started = True
     # Add user message to memory
     st.session_state.messages.append({"role": "user", "content": prompt})
     
