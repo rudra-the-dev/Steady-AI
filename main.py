@@ -131,6 +131,9 @@ st.markdown("""
         position: relative !important;
         overflow: hidden !important;
         z-index: 1 !important;
+        display: block !important;
+        width: 100% !important;
+        text-align: left !important;
     }
     
     div.stButton > button:hover {
@@ -139,13 +142,18 @@ st.markdown("""
         box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3) !important;
     }
 
+    /* Ensure the button container takes full width */
+    div.stButton {
+        width: 100% !important;
+    }
+
     /* Card overlay text styling - refined for visibility */
     .card-overlay {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
-        height: 100%;
+        height: 200px;
         padding: 25px;
         display: flex;
         flex-direction: column;
