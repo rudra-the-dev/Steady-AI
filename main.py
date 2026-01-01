@@ -126,7 +126,7 @@ st.markdown("""
         padding: 0 !important;
         width: 100% !important;
         height: 200px !important;
-        border: 1px solid #E6E0D4 !important;
+        border: 2px solid #0066FF !important;
         transition: all 0.2s ease !important;
         position: relative !important;
         overflow: hidden !important;
@@ -136,8 +136,7 @@ st.markdown("""
     div.stButton > button:hover {
         transform: translateY(-5px) !important;
         background-color: #E9E1D3 !important;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
-        border-color: #D6CDBF !important;
+        box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3) !important;
     }
 
     /* Card overlay text styling - refined for visibility */
