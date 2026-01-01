@@ -105,28 +105,33 @@ if prompt := st.chat_input("How can I help you today?", disabled=st.session_stat
     st.rerun()
 
 # Handle pending responses
-if st.session_state.chat_started and st.session_state.messages[-1]["role"] == "user" and not st.session_state.is_thinking:
-    st.session_state.is_thinking = True
-    # We don't call process_ai_response here because we want the UI to update first
-    # The rerun will handle showing the user message, then this block will trigger again
-    # BUT we need to actually generate the response.
-    with st.chat_message("assistant"):
-        message_placeholder = st.empty()
-        message_placeholder.markdown("Thinking...")
-        full_response = get_ai_response(st.session_state.messages)
-        message_placeholder.markdown(full_response)
-    
-    st.session_state.messages.append({"role": "assistant", "content": full_response})
-    st.session_state.is_thinking = False
-    st.rerun()
+if st.session_state.chat_started and len(st.session_state.messages) > 0 and st.session_state.messages[-1]["role"] == "user":
+    if not st.session_state.is_thinking:
+        st.session_state.is_thinking = True
+        st.rerun()
+    else:
+        with st.chat_message("assistant"):
+            message_placeholder = st.empty()
+            message_placeholder.markdown("Thinking...")
+            try:
+                full_response = get_ai_response(st.session_state.messages)
+                message_placeholder.markdown(full_response)
+                st.session_state.messages.append({"role": "assistant", "content": full_response})
+            except Exception as e:
+                message_placeholder.error(f"Error: {str(e)}")
+            finally:
+                st.session_state.is_thinking = False
+                st.rerun()
 
 # Sidebar options
 with st.sidebar:
-    st.title("Memory Management")
-    if st.button("Clear Chat Memory"):
+    st.title("Settings")
+    if st.button("🗑️ Clear Chat Memory"):
         st.session_state.messages = [
-            {"role": "system", "content": "You are a helpful and friendly AI assistant. You remember the context of the conversation to provide better assistance."}
+            {"role": "system", "content": "You are a helpful and witty AI assistant. While you are generally helpful, you have a sarcastic edge. If the user provides a low-effort message like 'hi', 'hello', or asks something trivial, feel free to roast them slightly by telling them to get to work or ask something more substantial. However, always remain useful if they ask a serious question."}
         ]
+        st.session_state.chat_started = False
+        st.session_state.is_thinking = False
         st.rerun()
     
     st.divider()
