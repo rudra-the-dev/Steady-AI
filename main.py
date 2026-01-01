@@ -73,22 +73,10 @@ for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-# Generate response function for reuse
-def process_ai_response():
-    st.session_state.is_thinking = True
-    with st.chat_message("assistant"):
-        message_placeholder = st.empty()
-        message_placeholder.markdown("Thinking...")
-        
-        full_response = get_ai_response(st.session_state.messages)
-        message_placeholder.markdown(full_response)
-    
-    st.session_state.messages.append({"role": "assistant", "content": full_response})
-    st.session_state.is_thinking = False
-    st.rerun()
+# Show beginner prompts only if chat hasn't started and no user messages yet
+has_user_messages = any(msg["role"] == "user" for msg in st.session_state.messages)
 
-# Show beginner prompts only if chat hasn't started
-if not st.session_state.chat_started and len(st.session_state.messages) <= 1:
+if not st.session_state.chat_started and not has_user_messages:
     st.write("### Try one of these to get started:")
     cols = st.columns(3)
     
@@ -103,18 +91,29 @@ if not st.session_state.chat_started and len(st.session_state.messages) <= 1:
             if st.button(p["label"], key=f"btn_{i}", disabled=st.session_state.is_thinking):
                 st.session_state.chat_started = True
                 st.session_state.messages.append({"role": "user", "content": p["text"]})
-                process_ai_response()
+                st.rerun()
 
 # Chat input
 if prompt := st.chat_input("How can I help you today?", disabled=st.session_state.is_thinking):
     st.session_state.chat_started = True
-    # Add user message to memory
     st.session_state.messages.append({"role": "user", "content": prompt})
     st.rerun()
 
-# Handle pending responses if any (needed for rerun logic)
+# Handle pending responses
 if st.session_state.chat_started and st.session_state.messages[-1]["role"] == "user" and not st.session_state.is_thinking:
-    process_ai_response()
+    st.session_state.is_thinking = True
+    # We don't call process_ai_response here because we want the UI to update first
+    # The rerun will handle showing the user message, then this block will trigger again
+    # BUT we need to actually generate the response.
+    with st.chat_message("assistant"):
+        message_placeholder = st.empty()
+        message_placeholder.markdown("Thinking...")
+        full_response = get_ai_response(st.session_state.messages)
+        message_placeholder.markdown(full_response)
+    
+    st.session_state.messages.append({"role": "assistant", "content": full_response})
+    st.session_state.is_thinking = False
+    st.rerun()
 
 # Sidebar options
 with st.sidebar:
