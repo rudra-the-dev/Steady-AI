@@ -131,7 +131,6 @@ st.markdown("""
         position: relative !important;
         overflow: hidden !important;
         z-index: 1 !important;
-        margin: 0 !important;
     }
     
     div.stButton > button:hover {
@@ -140,30 +139,19 @@ st.markdown("""
         box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3) !important;
     }
 
-    /* Card overlay text styling - fixed positioning over the button */
+    /* Card overlay text styling - refined for visibility */
     .card-overlay {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
-        height: 200px;
+        height: 100%;
         padding: 25px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         pointer-events: none;
         z-index: 2;
-    }
-    
-    /* Ensure the column is a positioning context and has no extra padding */
-    [data-testid="column"] {
-        position: relative !important;
-        padding: 0 !important;
-    }
-    
-    /* Force the button container to not have any margins that break alignment */
-    .element-container {
-        margin-bottom: 0 !important;
     }
 
     /* Target the button's focus/active state with blue boundary */
@@ -230,21 +218,17 @@ if not st.session_state.chat_started and not has_user_messages:
     cols = st.columns(3)
     for i, p in enumerate(prompts):
         with cols[i]:
-            # The button itself is the card background and spans the full area
-            # We use a container with relative positioning to stack the button and text
-            st.markdown(f'<div style="position: relative; height: 200px; width: 100%;">', unsafe_allow_html=True)
-            
+            # The button itself is the card background
             if st.button(" ", key=f"btn_{i}", disabled=st.session_state.is_thinking):
                 st.session_state.chat_started = True
                 st.session_state.messages.append({"role": "user", "content": p["text"]})
                 st.rerun()
             
-            # The overlay is positioned absolutely to fill the entire button area
+            # Use a div that sits perfectly over the button area
             st.markdown(f"""
-            <div class="card-overlay" style="position: absolute; top: 0; left: 0; pointer-events: none;">
+            <div class="card-overlay" style="margin-top: -200px;">
                 <div class="card-icon" style="margin: 0;">{p['icon']}</div>
                 <div class="card-title" style="margin: 0;">{p['title']}</div>
-            </div>
             </div>
             """, unsafe_allow_html=True)
 
