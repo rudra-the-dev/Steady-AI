@@ -128,6 +128,9 @@ st.markdown("""
         height: 200px !important;
         border: 1px solid #E6E0D4 !important;
         transition: all 0.2s ease !important;
+        position: relative !important;
+        overflow: hidden !important;
+        z-index: 1 !important;
     }
     
     div.stButton > button:hover {
@@ -135,6 +138,21 @@ st.markdown("""
         background-color: #E9E1D3 !important;
         box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
         border-color: #D6CDBF !important;
+    }
+
+    /* Overlay text styling */
+    .card-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        padding: 25px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        pointer-events: none;
+        z-index: 2;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -185,17 +203,17 @@ if not st.session_state.chat_started and not has_user_messages:
     cols = st.columns(3)
     for i, p in enumerate(prompts):
         with cols[i]:
-            # Use empty labels and overlay custom HTML to avoid text overlapping
+            # The button itself is the card background
             if st.button(" ", key=f"btn_{i}", disabled=st.session_state.is_thinking):
                 st.session_state.chat_started = True
                 st.session_state.messages.append({"role": "user", "content": p["text"]})
                 st.rerun()
             
-            # Use absolute positioning or negative margin to place content inside the button area
+            # Use a div that sits perfectly over the button area
             st.markdown(f"""
-            <div style="margin-top: -200px; pointer-events: none; padding: 25px; height: 200px; display: flex; flex-direction: column; justify-content: space-between;">
-                <div class="card-icon">{p['icon']}</div>
-                <div class="card-title">{p['title']}</div>
+            <div class="card-overlay" style="margin-top: -200px;">
+                <div class="card-icon" style="margin: 0;">{p['icon']}</div>
+                <div class="card-title" style="margin: 0;">{p['title']}</div>
             </div>
             """, unsafe_allow_html=True)
 
