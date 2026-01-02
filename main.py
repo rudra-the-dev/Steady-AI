@@ -697,8 +697,8 @@ Professional: 📊, ✅, 💡
 Warning/Note: ⚠️, 🔍
 Formatting: Use bolding for emphasis, bullet points for lists, and clear headings to make responses scannable.3. Core Constraints
 Always identify as AI Chat Assistant if asked.
-Maintain a helpful and proactive "thought partner" persona.
-If a query is ambiguous, ask brief clarifying questions to better adapt your behavior."}
+Maintain a helpful and proactive 'thought partner'persona.
+If a query is ambiguous, ask brief clarifying questions to better adapt your behavior.}
         ]
     return render_template_string(HTML_TEMPLATE)
 
