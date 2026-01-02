@@ -43,7 +43,7 @@ def get_ai_response(messages):
         response = client.chat.completions.create(
             model=MODEL,
             messages=minimal_messages,
-            max_completion_tokens=2048 # Reduced from 4096 to save bandwidth
+            max_completion_tokens=2048
         )
         content = response.choices[0].message.content
         return content if content is not None else ""
@@ -55,38 +55,15 @@ def get_ai_response(messages):
 
 st.set_page_config(page_title="AI Chat Assistant", page_icon="💬", layout="centered")
 
-# Extract CSS and JS logic from the provided reference code
-# and integrate it into Streamlit's markdown system.
+# Custom Styling and Logic from Reference
 st.markdown("""
 <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    .stApp {
-        background-color: #f5f1e8;
-    }
-
-    .container {
-        width: 100%;
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-
-    .cards-wrapper {
-        position: relative;
-        overflow: hidden;
-        margin-bottom: 30px;
-    }
-
-    .cards-container {
-        display: flex;
-        gap: 20px;
-        transition: transform 0.3s ease-out;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    .stApp { background-color: #f5f1e8; }
+    .container { width: 100%; max-width: 1200px; margin: 0 auto; }
+    .cards-wrapper { position: relative; overflow: hidden; margin-bottom: 30px; }
+    .cards-container { display: flex; gap: 20px; transition: transform 0.3s ease-out; }
+    
     .card {
         background: #f9f6f0;
         border-radius: 16px;
@@ -101,6 +78,7 @@ st.markdown("""
         position: relative;
         text-align: left;
         overflow: hidden;
+        width: 100%;
     }
 
     .card:hover {
@@ -116,6 +94,7 @@ st.markdown("""
         font-size: 48px;
         line-height: 1;
         pointer-events: none;
+        z-index: 2;
     }
 
     .card-title {
@@ -129,62 +108,26 @@ st.markdown("""
         margin: 0;
         max-width: 85%;
         pointer-events: none;
+        z-index: 2;
+        font-family: inherit;
     }
 
     @media (min-width: 769px) {
-        .cards-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-        }
-
-        .card {
-            flex: none;
-            width: 100%;
-        }
-
-        .dots {
-            display: none;
-        }
+        .cards-container { display: grid; grid-template-columns: repeat(3, 1fr); }
+        .card { flex: none; width: 100%; }
+        .dots { display: none; }
     }
 
     @media (max-width: 768px) {
-        .cards-wrapper {
-            padding: 0 20px;
-        }
-
-        .cards-container {
-            gap: 20px;
-            padding: 0;
-        }
-
-        .card {
-            flex: 0 0 calc(100vw - 40px);
-        }
-
-        .dots {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 20px;
-        }
-
-        .dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: #d4cfc4;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .dot.active {
-            background-color: #8b7f6f;
-            width: 24px;
-            border-radius: 4px;
-        }
+        .cards-wrapper { padding: 0 20px; }
+        .cards-container { gap: 20px; padding: 0; }
+        .card { flex: 0 0 calc(100vw - 40px); }
+        .dots { display: flex; justify-content: center; gap: 8px; margin-top: 20px; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background-color: #d4cfc4; transition: all 0.3s ease; cursor: pointer; }
+        .dot.active { background-color: #8b7f6f; width: 24px; border-radius: 4px; }
     }
 
-    /* Streamlit button normalization to act as card */
+    /* Invisible Streamlit Buttons */
     div.stButton {
         position: absolute !important;
         top: 0 !important;
@@ -193,25 +136,24 @@ st.markdown("""
         height: 100% !important;
         z-index: 5 !important;
     }
-
     div.stButton > button {
         background: transparent !important;
         border: none !important;
-        padding: 0 !important;
         width: 100% !important;
         height: 100% !important;
         color: transparent !important;
         box-shadow: none !important;
-        display: block !important;
     }
-
-    div.stButton > button:hover, 
-    div.stButton > button:active, 
-    div.stButton > button:focus {
-        background: transparent !important;
-        color: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
+    
+    .custom-banner {
+        background: linear-gradient(135deg, #2D3E33 0%, #4A5D50 100%);
+        color: #F8F5F0;
+        border-radius: 20px;
+        padding: 40px;
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 </style>
 
@@ -224,11 +166,8 @@ st.markdown("""
                 const gap = 20;
                 const offset = -(index * (cardWidth + gap));
                 cardsContainer.style.transform = `translateX(${offset}px)`;
-                
                 const dots = window.parent.document.querySelectorAll('.dot');
-                dots.forEach((dot, i) => {
-                    dot.classList.toggle('active', i === index);
-                });
+                dots.forEach((dot, i) => dot.classList.toggle('active', i === index));
             }
         }
     }
@@ -236,37 +175,30 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.title("💬 AI Chat Assistant")
-st.caption("A helpful assistant with memory of our conversation.")
 
-# Initialize session state for memory
+# Initialize session state
 if "messages" not in st.session_state:
     st.session_state.messages = [
-        {"role": "system", "content": "You are a witty AI assistant that NEVER gives long explanations or answers upfront. Your goal is to be extremely interactive. For EVERY user request, you must ask 2-3 specific follow-up questions to understand their context before providing any real help. For example, if they ask about coding, ask for their language, what they've tried, and their specific error. If they ask for a project idea, ask for their interests and skill level first. Keep your initial responses very short and focused entirely on gathering information. Roast them briefly if they say something low-effort, but always end with a question."}
+        {"role": "system", "content": "You are a witty AI assistant. For EVERY request, ask 2-3 specific follow-up questions first. Roast them briefly for low-effort messages."}
     ]
-
-# Define prompt cards
 if "chat_started" not in st.session_state:
     st.session_state.chat_started = False
-
 if "is_thinking" not in st.session_state:
     st.session_state.is_thinking = False
 
-# Display chat history
+# Display history
 for message in st.session_state.messages:
     if message["role"] != "system":
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-# Show beginner prompts only if chat hasn't started and no user messages yet
-has_user_messages = any(msg["role"] == "user" for msg in st.session_state.messages)
-
-if not st.session_state.chat_started and not has_user_messages:
-    # Custom Banner
+# Beginner prompts
+if not st.session_state.chat_started and not any(m["role"] == "user" for m in st.session_state.messages):
     st.markdown("""
     <div class="custom-banner">
         <div class="banner-text">
-            <h1>Hello, Friend</h1>
-            <p>How can I help you move forward today?</p>
+            <h1 style="color:white; margin:0;">Hello, Friend</h1>
+            <p style="color:#C2CDC5;">How can I help you move forward today?</p>
         </div>
         <div style="font-size: 60px; opacity: 0.8;">✨</div>
     </div>
@@ -278,41 +210,17 @@ if not st.session_state.chat_started and not has_user_messages:
         {"icon": "🛠️", "title": "Fix some broken code", "text": "I need help debugging some code, but don’t jump to conclusions yet.\nFirst, ask me a sequence of focused questions to fully understand the problem. Ask them step by step, not all at once.\nYour questions should cover:\nthe programming language and environment\nwhat the code is supposed to do\nwhat it is actually doing\nexact error messages or unexpected behavior\nwhere and when the problem occurs\nwhat I’ve already tried\nAfter you have enough information and I answer, then:\nidentify the most likely root cause(s)\nexplain the bug in simple terms\nshow the corrected code\nexplain why the fix works\nsuggest how to prevent this type of bug in the future\nBe precise and technical. Don’t guess. Don’t oversimplify."}
     ]
     
-    # Use the HTML structure from the reference file
-    st.markdown(f"""
-    <div class="container">
-        <div class="cards-wrapper">
-            <div class="cards-container" id="cardsContainer">
-    """, unsafe_allow_html=True)
-    
+    st.markdown('<div class="container"><div class="cards-wrapper"><div class="cards-container">', unsafe_allow_html=True)
     cols = st.columns(3)
     for i, p in enumerate(prompts):
         with cols[i]:
-            # The visual representation of the card
-            # The button is placed inside the card and made invisible/full-size
-            st.markdown(f"""
-            <div class="card" id="card_{i}">
-                <div class="icon">{p['icon']}</div>
-                <h2 class="card-title">{p['title']}</h2>
-            """, unsafe_allow_html=True)
-            
-            if st.button(" ", key=f"btn_inner_{i}"):
+            st.markdown(f'<div class="card"><div class="icon">{p["icon"]}</div><h2 class="card-title">{p["title"]}</h2>', unsafe_allow_html=True)
+            if st.button(" ", key=f"btn_{i}"):
                 st.session_state.chat_started = True
                 st.session_state.messages.append({"role": "user", "content": p["text"]})
                 st.rerun()
-            
-            st.markdown("</div>", unsafe_allow_html=True)
-
-    st.markdown("""
-            </div>
-            <div class="dots" id="dots">
-                <div class="dot active" onclick="goToSlide(0)"></div>
-                <div class="dot" onclick="goToSlide(1)"></div>
-                <div class="dot" onclick="goToSlide(2)"></div>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div><div class="dots"><div class="dot active" onclick="goToSlide(0)"></div><div class="dot" onclick="goToSlide(1)"></div><div class="dot" onclick="goToSlide(2)"></div></div></div></div>', unsafe_allow_html=True)
 
 # Chat input
 if prompt := st.chat_input("How can I help you today?", disabled=st.session_state.is_thinking):
@@ -320,8 +228,8 @@ if prompt := st.chat_input("How can I help you today?", disabled=st.session_stat
     st.session_state.messages.append({"role": "user", "content": prompt})
     st.rerun()
 
-# Handle pending responses
-if st.session_state.chat_started and len(st.session_state.messages) > 0 and st.session_state.messages[-1]["role"] == "user":
+# Processing
+if st.session_state.chat_started and st.session_state.messages[-1]["role"] == "user":
     if not st.session_state.is_thinking:
         st.session_state.is_thinking = True
         st.rerun()
@@ -334,21 +242,14 @@ if st.session_state.chat_started and len(st.session_state.messages) > 0 and st.s
                 message_placeholder.markdown(full_response)
                 st.session_state.messages.append({"role": "assistant", "content": full_response})
             except Exception as e:
-                message_placeholder.error(f"Error: {str(e)}")
+                st.error(str(e))
             finally:
                 st.session_state.is_thinking = False
                 st.rerun()
 
-# Sidebar options
 with st.sidebar:
     st.title("Settings")
     if st.button("🗑️ Clear Chat Memory"):
-        st.session_state.messages = [
-            {"role": "system", "content": "You are a helpful and witty AI assistant. While you are generally helpful, you have a sarcastic edge. If the user provides a low-effort message like 'hi', 'hello', or asks something trivial, feel free to roast them slightly by telling them to get to work or ask something more substantial. However, always remain useful if they ask a serious question."}
-        ]
+        st.session_state.messages = [{"role": "system", "content": "You are a witty AI assistant."}]
         st.session_state.chat_started = False
-        st.session_state.is_thinking = False
         st.rerun()
-    
-    st.divider()
-    st.info("This assistant uses the latest GPT-5 model via Replit AI Integrations.")
