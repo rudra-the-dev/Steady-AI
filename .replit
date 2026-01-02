@@ -11,7 +11,7 @@ language = "python3"
 requiredFiles = [".replit", "replit.nix"]
 
 [deployment]
-run = ["streamlit", "run", "main.py", "--server.port", "5000", "--server.address", "0.0.0.0"]
+run = ["python", "main.py"]
 deploymentTarget = "autoscale"
 
 [agent]
@@ -28,15 +28,15 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Streamlit App"
+args = "Flask App"
 
 [[workflows.workflow]]
-name = "Streamlit App"
+name = "Flask App"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "streamlit run main.py --server.port 5000 --server.address 0.0.0.0"
+args = "python main.py"
 waitForPort = 5000
 
 [workflows.workflow.metadata]
