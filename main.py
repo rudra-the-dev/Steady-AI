@@ -126,9 +126,9 @@ st.markdown("""
         background-color: #EFE9DE !important;
         color: #2D3E33 !important;
         border-radius: 15px !important;
-        padding: 20px !important;
+        padding: 15px !important;
         width: 100% !important;
-        height: 200px !important;
+        height: 180px !important;
         border: 2px solid #0066FF !important;
         transition: all 0.2s ease !important;
         position: relative !important;
@@ -136,19 +136,45 @@ st.markdown("""
         z-index: 1 !important;
         display: flex !important;
         flex-direction: column !important;
-        justify-content: center !important;
-        align-items: center !important;
-        text-align: center !important;
+        justify-content: flex-start !important;
+        align-items: flex-start !important;
+        text-align: left !important;
         white-space: pre-wrap !important;
         font-family: 'Serif', 'Georgia', serif !important;
-        font-size: 18px !important;
-        font-weight: 600 !important;
+        font-size: 16px !important;
+        font-weight: 500 !important;
     }
     
     .card-btn-container div.stButton > button:hover {
         transform: translateY(-5px) !important;
         background-color: #E9E1D3 !important;
         box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3) !important;
+    }
+
+    /* Icon positioning - Top Right */
+    .card-btn-container .card-icon-overlay {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        font-size: 35px;
+        pointer-events: none;
+        z-index: 2;
+        opacity: 0.9;
+    }
+
+    /* Title positioning - Bottom Left */
+    .card-btn-container .card-title-overlay {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        font-size: 20px;
+        font-weight: 600;
+        pointer-events: none;
+        z-index: 2;
+        max-width: 85%;
+        line-height: 1.3;
+        color: #2D3E33;
+        font-family: 'Serif', 'Georgia', serif;
     }
 
     /* Target the button's focus/active state with blue boundary */
@@ -237,12 +263,17 @@ if not st.session_state.chat_started and not has_user_messages:
         with cols[i]:
             # Wrap in a container to apply card-specific styling
             st.markdown('<div class="card-btn-container">', unsafe_allow_html=True)
-            # The button text includes the emoji and title with spacing
-            button_text = f"{p['icon']}\n\n{p['title']}"
-            if st.button(button_text, key=f"btn_{i}", disabled=st.session_state.is_thinking):
+            # The button is just the background/border
+            if st.button(" ", key=f"btn_{i}", disabled=st.session_state.is_thinking):
                 st.session_state.chat_started = True
                 st.session_state.messages.append({"role": "user", "content": p["text"]})
                 st.rerun()
+            
+            # Use absolute overlays for the icon and title to match the image
+            st.markdown(f"""
+            <div class="card-icon-overlay">{p['icon']}</div>
+            <div class="card-title-overlay">{p['title']}</div>
+            """, unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
 
 # Chat input
