@@ -74,11 +74,13 @@ st.markdown("""
         align-items: flex-start;
         cursor: pointer;
         transition: all 0.3s ease;
-        border: 2px solid #0066FF;
+        border: 2px solid #0066FF !important;
         position: relative;
         text-align: left;
         overflow: hidden;
         width: 100%;
+        user-select: none;
+        -webkit-user-select: none;
     }
 
     .card:hover {
@@ -95,6 +97,11 @@ st.markdown("""
         line-height: 1;
         pointer-events: none;
         z-index: 2;
+        transition: transform 0.3s ease;
+    }
+
+    .card:hover .icon {
+        transform: scale(1.1);
     }
 
     .card-title {
@@ -143,6 +150,15 @@ st.markdown("""
         height: 100% !important;
         color: transparent !important;
         box-shadow: none !important;
+        display: block !important;
+    }
+    div.stButton > button:hover, 
+    div.stButton > button:active, 
+    div.stButton > button:focus {
+        background: transparent !important;
+        color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
     }
     
     .custom-banner {
@@ -171,6 +187,24 @@ st.markdown("""
             }
         }
     }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        const container = window.parent.document.querySelector('.cards-wrapper');
+        if (container) {
+            let startX = 0;
+            let currentSlide = 0;
+            container.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; });
+            container.addEventListener('touchend', (e) => {
+                const endX = e.changedTouches[0].clientX;
+                const diff = startX - endX;
+                if (Math.abs(diff) > 50) {
+                    if (diff > 0 && currentSlide < 2) currentSlide++;
+                    else if (diff < 0 && currentSlide > 0) currentSlide--;
+                    goToSlide(currentSlide);
+                }
+            });
+        }
+    });
 </script>
 """, unsafe_allow_html=True)
 
@@ -205,22 +239,37 @@ if not st.session_state.chat_started and not any(m["role"] == "user" for m in st
     """, unsafe_allow_html=True)
     
     prompts = [
-        {"icon": "🚀", "title": "Start a new project", "text": "I want ideas for a project, but don’t suggest anything yet.\nFirst, ask me a series of specific questions to understand my situation properly. Ask them step by step, not all at once.\nYour questions should cover:\nmy interests and problems I care about\nmy current skills and tools I know\nmy experience level (beginner/intermediate/advanced)\nhow much time I can realistically give\nwhether the project is for learning, competition, portfolio, business, or fun\nconstraints like budget, team size, device, or platform\nAfter I answer all the questions, analyze my responses and:\nsuggest 3–5 project ideas that actually fit me\nexplain why each idea is suitable\nmention the main challenges of each idea\nrecommend one best project to start with\noutline clear next steps to begin (tech stack, first milestone, etc.)\nAvoid generic ideas. Be practical, specific, and honest."},
-        {"icon": "💡", "title": "Level up your career", "text": "I want career guidance, but don’t give advice immediately.\nFirst, ask me a series of clear and specific questions to understand me properly. Ask them step by step, not all at once.\nYour questions should cover:\nwhat I’m interested in and enjoy doing\nwhat I’m good at and what skills I already have\nwhat I dislike or want to avoid\nwhat kind of work environment suits me\nmy education level and practical limitations\nmy long-term goals, income expectations, and lifestyle preferences\nAfter you finish asking questions and I answer them, analyze my responses honestly and:\nsuggest 3–5 realistic career options\nexplain why each option fits or doesn’t fit me\npoint out any contradictions or unrealistic assumptions in my thinking\nsuggest concrete next steps for the best options\nBe direct, practical, and honest. No motivational fluff."},
-        {"icon": "🛠️", "title": "Fix some broken code", "text": "I need help debugging some code, but don’t jump to conclusions yet.\nFirst, ask me a sequence of focused questions to fully understand the problem. Ask them step by step, not all at once.\nYour questions should cover:\nthe programming language and environment\nwhat the code is supposed to do\nwhat it is actually doing\nexact error messages or unexpected behavior\nwhere and when the problem occurs\nwhat I’ve already tried\nAfter you have enough information and I answer, then:\nidentify the most likely root cause(s)\nexplain the bug in simple terms\nshow the corrected code\nexplain why the fix works\nsuggest how to prevent this type of bug in the future\nBe precise and technical. Don’t guess. Don’t oversimplify."}
+        {"icon": "🚀", "title": "Project Idea", "text": "I want ideas for a project, but don’t suggest anything yet.\nFirst, ask me a series of specific questions to understand my situation properly. Ask them step by step, not all at once.\nYour questions should cover:\nmy interests and problems I care about\nmy current skills and tools I know\nmy experience level (beginner/intermediate/advanced)\nhow much time I can realistically give\nwhether the project is for learning, competition, portfolio, business, or fun\nconstraints like budget, team size, device, or platform\nAfter I answer all the questions, analyze my responses and:\nsuggest 3–5 project ideas that actually fit me\nexplain why each idea is suitable\nmention the main challenges of each idea\nrecommend one best project to start with\noutline clear next steps to begin (tech stack, first milestone, etc.)\nAvoid generic ideas. Be practical, specific, and honest."},
+        {"icon": "💡", "title": "Career Advice", "text": "I want career guidance, but don’t give advice immediately.\nFirst, ask me a series of clear and specific questions to understand me properly. Ask them step by step, not all at once.\nYour questions should cover:\nwhat I’m interested in and enjoy doing\nwhat I’m good at and what skills I already have\nwhat I dislike or want to avoid\nwhat kind of work environment suits me\nmy education level and practical limitations\nmy long-term goals, income expectations, and lifestyle preferences\nAfter you finish asking questions and I answer them, analyze my responses honestly and:\nsuggest 3–5 realistic career options\nexplain why each option fits or doesn’t fit me\npoint out any contradictions or unrealistic assumptions in my thinking\nsuggest concrete next steps for the best options\nBe direct, practical, and honest. No motivational fluff."},
+        {"icon": "🛠️", "title": "Code Debugging", "text": "I need help debugging some code, but don’t jump to conclusions yet.\nFirst, ask me a sequence of focused questions to fully understand the problem. Ask them step by step, not all at once.\nYour questions should cover:\nthe programming language and environment\nwhat the code is supposed to do\nwhat it is actually doing\nexact error messages or unexpected behavior\nwhere and when the problem occurs\nwhat I’ve already tried\nAfter you have enough information and I answer, then:\nidentify the most likely root cause(s)\nexplain the bug in simple terms\nshow the corrected code\nexplain why the fix works\nsuggest how to prevent this type of bug in the future\nBe precise and technical. Don’t guess. Don’t oversimplify."}
     ]
     
     st.markdown('<div class="container"><div class="cards-wrapper"><div class="cards-container">', unsafe_allow_html=True)
+    
+    # Use standard Streamlit columns for the grid layout to ensure proper rendering
     cols = st.columns(3)
     for i, p in enumerate(prompts):
         with cols[i]:
+            # The card visual container
             st.markdown(f'<div class="card"><div class="icon">{p["icon"]}</div><h2 class="card-title">{p["title"]}</h2>', unsafe_allow_html=True)
+            # The invisible button that covers the card and handles the click
             if st.button(" ", key=f"btn_{i}"):
                 st.session_state.chat_started = True
                 st.session_state.messages.append({"role": "user", "content": p["text"]})
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
-    st.markdown('</div><div class="dots"><div class="dot active" onclick="goToSlide(0)"></div><div class="dot" onclick="goToSlide(1)"></div><div class="dot" onclick="goToSlide(2)"></div></div></div></div>', unsafe_allow_html=True)
+            
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Dots and swipe container for mobile - correctly nested according to reference
+    st.markdown("""
+        <div class="dots">
+            <div class="dot active" onclick="goToSlide(0)"></div>
+            <div class="dot" onclick="goToSlide(1)"></div>
+            <div class="dot" onclick="goToSlide(2)"></div>
+        </div>
+    </div></div>
+    """, unsafe_allow_html=True)
 
 # Chat input
 if prompt := st.chat_input("How can I help you today?", disabled=st.session_state.is_thinking):
@@ -229,7 +278,7 @@ if prompt := st.chat_input("How can I help you today?", disabled=st.session_stat
     st.rerun()
 
 # Processing
-if st.session_state.chat_started and st.session_state.messages[-1]["role"] == "user":
+if st.session_state.chat_started and len(st.session_state.messages) > 0 and st.session_state.messages[-1]["role"] == "user":
     if not st.session_state.is_thinking:
         st.session_state.is_thinking = True
         st.rerun()
