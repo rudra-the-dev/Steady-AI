@@ -122,27 +122,32 @@ st.markdown("""
     }
     
     /* Card-specific button styling */
+    .card-btn-container {
+        position: relative;
+        width: 100%;
+        height: 200px;
+        margin-bottom: 20px;
+    }
+
     .card-btn-container div.stButton > button {
         background-color: #EFE9DE !important;
         color: #2D3E33 !important;
         border-radius: 15px !important;
-        padding: 15px !important;
+        padding: 0 !important;
         width: 100% !important;
-        height: 180px !important;
+        height: 200px !important;
         border: 2px solid #0066FF !important;
         transition: all 0.2s ease !important;
         position: relative !important;
         overflow: hidden !important;
         z-index: 1 !important;
-        display: flex !important;
-        flex-direction: column !important;
-        justify-content: flex-start !important;
-        align-items: flex-start !important;
-        text-align: left !important;
-        white-space: pre-wrap !important;
-        font-family: 'Serif', 'Georgia', serif !important;
-        font-size: 16px !important;
-        font-weight: 500 !important;
+        display: block !important;
+        box-shadow: none !important;
+    }
+    
+    /* Hide the default space label in the button */
+    .card-btn-container div.stButton > button p {
+        display: none !important;
     }
     
     .card-btn-container div.stButton > button:hover {
@@ -151,30 +156,35 @@ st.markdown("""
         box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3) !important;
     }
 
-    /* Icon positioning - Top Right */
-    .card-btn-container .card-icon-overlay {
+    /* Content styling positioned over the button */
+    .card-overlay {
         position: absolute;
-        top: 15px;
-        right: 15px;
-        font-size: 35px;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 200px;
         pointer-events: none;
         z-index: 2;
-        opacity: 0.9;
     }
 
-    /* Title positioning - Bottom Left */
-    .card-btn-container .card-title-overlay {
+    .card-icon-inner {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 35px;
+        line-height: 1;
+    }
+
+    .card-title-inner {
         position: absolute;
         bottom: 20px;
         left: 20px;
         font-size: 20px;
         font-weight: 600;
-        pointer-events: none;
-        z-index: 2;
-        max-width: 85%;
         line-height: 1.3;
-        color: #2D3E33;
         font-family: 'Serif', 'Georgia', serif;
+        max-width: 80%;
+        color: #2D3E33;
     }
 
     /* Target the button's focus/active state with blue boundary */
@@ -261,18 +271,19 @@ if not st.session_state.chat_started and not has_user_messages:
     cols = st.columns(3)
     for i, p in enumerate(prompts):
         with cols[i]:
-            # Wrap in a container to apply card-specific styling
             st.markdown('<div class="card-btn-container">', unsafe_allow_html=True)
-            # The button is just the background/border
+            # Use an empty button as the background and overlay the content
             if st.button(" ", key=f"btn_{i}", disabled=st.session_state.is_thinking):
                 st.session_state.chat_started = True
                 st.session_state.messages.append({"role": "user", "content": p["text"]})
                 st.rerun()
             
-            # Use absolute overlays for the icon and title to match the image
+            # Overlay content with absolute positioning
             st.markdown(f"""
-            <div class="card-icon-overlay">{p['icon']}</div>
-            <div class="card-title-overlay">{p['title']}</div>
+            <div class="card-overlay">
+                <div class="card-icon-inner">{p['icon']}</div>
+                <div class="card-title-inner">{p['title']}</div>
+            </div>
             """, unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
 
