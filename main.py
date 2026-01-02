@@ -575,7 +575,7 @@ HTML_TEMPLATE = '''
             <button class="close-btn" onclick="closeSidebar()">✕</button>
         </div>
         <div class="sidebar-content">
-            <button class="sidebar-btn danger" onclick="clearChat()">
+            <button class="sidebar-btn danger" id="clearChatBtn">
                 🗑️ Clear Chat Memory
             </button>
             <div style="margin-top: 20px; padding: 15px; background-color: #F8F5F0; border-radius: 8px;">
@@ -592,7 +592,7 @@ HTML_TEMPLATE = '''
             <p>A helpful assistant with memory of our conversation</p>
         </div>
         <div class="header-right">
-            <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+            <button class="menu-btn" id="menuBtn">☰</button>
         </div>
     </div>
 
@@ -608,15 +608,15 @@ HTML_TEMPLATE = '''
 
             <div class="cards-wrapper">
                 <div class="cards-container" id="cardsContainer">
-                    <div class="card" onclick="selectCard(0)">
+                    <div class="card" data-card-index="0">
                         <div class="card-icon">🚀</div>
                         <div class="card-title">Start a new project</div>
                     </div>
-                    <div class="card" onclick="selectCard(1)">
+                    <div class="card" data-card-index="1">
                         <div class="card-icon">💡</div>
                         <div class="card-title">Level up your career</div>
                     </div>
-                    <div class="card" onclick="selectCard(2)">
+                    <div class="card" data-card-index="2">
                         <div class="card-icon">🛠️</div>
                         <div class="card-title">Fix some broken code</div>
                     </div>
@@ -624,14 +624,14 @@ HTML_TEMPLATE = '''
             </div>
 
             <div class="nav-buttons">
-                <button class="nav-btn" onclick="prevSlide()">◀</button>
-                <button class="nav-btn" onclick="nextSlide()">▶</button>
+                <button class="nav-btn" id="prevBtn">◀</button>
+                <button class="nav-btn" id="nextBtn">▶</button>
             </div>
 
             <div class="dots" id="dots">
-                <div class="dot active" onclick="goToSlide(0)"></div>
-                <div class="dot" onclick="goToSlide(1)"></div>
-                <div class="dot" onclick="goToSlide(2)"></div>
+                <div class="dot active" data-slide="0"></div>
+                <div class="dot" data-slide="1"></div>
+                <div class="dot" data-slide="2"></div>
             </div>
         </div>
 
@@ -657,6 +657,66 @@ HTML_TEMPLATE = '''
         let currentSlide = 0;
         let chatStarted = false;
         let isThinking = false;
+
+        // Initialize event listeners when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing...');
+            
+            // Card click handlers
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                card.addEventListener('click', function() {
+                    console.log('Card clicked:', index);
+                    selectCard(index);
+                });
+            });
+
+            // Navigation button handlers
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            if (prevBtn) prevBtn.addEventListener('click', prevSlide);
+            if (nextBtn) nextBtn.addEventListener('click', nextSlide);
+
+            // Dot navigation handlers
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', function() {
+                    goToSlide(index);
+                });
+            });
+
+            // Send button handler
+            const sendBtn = document.getElementById('sendBtn');
+            if (sendBtn) {
+                sendBtn.addEventListener('click', sendMessage);
+            }
+
+            // Chat input enter key handler
+            const chatInput = document.getElementById('chatInput');
+            if (chatInput) {
+                chatInput.addEventListener('keypress', handleKeyPress);
+            }
+
+            // Menu button handler
+            const menuBtn = document.getElementById('menuBtn');
+            if (menuBtn) {
+                menuBtn.addEventListener('click', toggleSidebar);
+            }
+
+            // Clear chat button handler
+            const clearChatBtn = document.getElementById('clearChatBtn');
+            if (clearChatBtn) {
+                clearChatBtn.addEventListener('click', clearChat);
+            }
+
+            // Overlay click handler
+            const overlay = document.getElementById('overlay');
+            if (overlay) {
+                overlay.addEventListener('click', closeSidebar);
+            }
+
+            console.log('Event listeners attached');
+        });
 
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
@@ -942,3 +1002,4 @@ def clear_chat():
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
+        
