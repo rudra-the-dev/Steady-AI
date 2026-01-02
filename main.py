@@ -126,7 +126,7 @@ st.markdown("""
         background-color: #EFE9DE !important;
         color: #2D3E33 !important;
         border-radius: 15px !important;
-        padding: 0 !important;
+        padding: 20px !important;
         width: 100% !important;
         height: 200px !important;
         border: 2px solid #0066FF !important;
@@ -134,8 +134,15 @@ st.markdown("""
         position: relative !important;
         overflow: hidden !important;
         z-index: 1 !important;
-        display: block !important;
-        text-align: left !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        text-align: center !important;
+        white-space: pre-wrap !important;
+        font-family: 'Serif', 'Georgia', serif !important;
+        font-size: 18px !important;
+        font-weight: 600 !important;
     }
     
     .card-btn-container div.stButton > button:hover {
@@ -230,19 +237,12 @@ if not st.session_state.chat_started and not has_user_messages:
         with cols[i]:
             # Wrap in a container to apply card-specific styling
             st.markdown('<div class="card-btn-container">', unsafe_allow_html=True)
-            # The button itself is the card background
-            if st.button(" ", key=f"btn_{i}", disabled=st.session_state.is_thinking):
+            # The button text includes the emoji and title with spacing
+            button_text = f"{p['icon']}\n\n{p['title']}"
+            if st.button(button_text, key=f"btn_{i}", disabled=st.session_state.is_thinking):
                 st.session_state.chat_started = True
                 st.session_state.messages.append({"role": "user", "content": p["text"]})
                 st.rerun()
-            
-            # Use a div that sits perfectly over the button area
-            st.markdown(f"""
-            <div class="card-overlay" style="margin-top: -200px; height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 15px;">
-                <div class="card-icon" style="margin: 0; font-size: 50px; line-height: 1; padding-bottom: 15px;">{p['icon']}</div>
-                <div class="card-title" style="margin: 0; text-align: center; width: 100%; font-weight: 600; line-height: 1.2;">{p['title']}</div>
-            </div>
-            """, unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
 
 # Chat input
