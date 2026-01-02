@@ -78,18 +78,21 @@ st.markdown("""
         text-align: left;
     }
     
+    /* Card icon styling */
     .card-icon {
-        font-size: 30px;
-        text-align: right;
-        margin-bottom: 10px;
+        font-size: 50px;
+        line-height: 1;
+        margin-bottom: 15px;
     }
     
     .card-title {
         font-family: 'Serif', 'Georgia', serif;
         font-size: 18px;
-        font-weight: 500;
+        font-weight: 600;
         color: #2D3E33;
         line-height: 1.2;
+        text-align: center;
+        width: 100%;
     }
     
     /* Custom Banner Styling */
@@ -118,8 +121,8 @@ st.markdown("""
         margin-top: 10px;
     }
     
-    /* Clean up button styling */
-    div.stButton > button {
+    /* Card-specific button styling */
+    .card-btn-container div.stButton > button {
         background-color: #EFE9DE !important;
         color: #2D3E33 !important;
         border-radius: 15px !important;
@@ -135,46 +138,46 @@ st.markdown("""
         text-align: left !important;
     }
     
-    div.stButton > button:hover {
+    .card-btn-container div.stButton > button:hover {
         transform: translateY(-5px) !important;
         background-color: #E9E1D3 !important;
         box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3) !important;
     }
 
-    /* Ensure the button container takes full width */
-    div.stButton {
-        width: 100% !important;
-    }
-
-    /* Card overlay text styling - refined for visibility */
-    .card-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 200px;
-        padding: 25px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        pointer-events: none;
-        z-index: 2;
-    }
-
     /* Target the button's focus/active state with blue boundary */
-    div.stButton > button:focus, 
-    div.stButton > button:active {
+    .card-btn-container div.stButton > button:focus, 
+    .card-btn-container div.stButton > button:active {
         border: 2px solid #0066FF !important;
         box-shadow: 0 0 0 2px rgba(0, 102, 255, 0.2) !important;
         outline: none !important;
     }
     
-    /* Also show boundary on hover for clarity as a button */
-    div.stButton > button:hover {
-        transform: translateY(-5px) !important;
-        background-color: #E9E1D3 !important;
-        box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3) !important;
-        border: 2px solid #0066FF !important;
+    /* Standard sidebar button styling - reset to default */
+    section[data-testid="stSidebar"] div.stButton > button {
+        background-color: #ffffff !important;
+        color: #31333F !important;
+        border: 1px solid rgba(49, 51, 63, 0.2) !important;
+        height: auto !important;
+        width: auto !important;
+        border-radius: 0.5rem !important;
+        padding: 0.25rem 0.75rem !important;
+        text-align: center !important;
+        box-shadow: none !important;
+        transform: none !important;
+        z-index: auto !important;
+    }
+    
+    section[data-testid="stSidebar"] div.stButton > button:hover {
+        border-color: #ff4b4b !important;
+        color: #ff4b4b !important;
+        background-color: #ffffff !important;
+        transform: none !important;
+        box-shadow: none !important;
+    }
+
+    /* Ensure the button container takes full width */
+    .card-btn-container div.stButton {
+        width: 100% !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -225,6 +228,8 @@ if not st.session_state.chat_started and not has_user_messages:
     cols = st.columns(3)
     for i, p in enumerate(prompts):
         with cols[i]:
+            # Wrap in a container to apply card-specific styling
+            st.markdown('<div class="card-btn-container">', unsafe_allow_html=True)
             # The button itself is the card background
             if st.button(" ", key=f"btn_{i}", disabled=st.session_state.is_thinking):
                 st.session_state.chat_started = True
@@ -238,6 +243,7 @@ if not st.session_state.chat_started and not has_user_messages:
                 <div class="card-title" style="margin: 0; text-align: center; width: 100%; font-weight: 600; line-height: 1.2;">{p['title']}</div>
             </div>
             """, unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
 
 # Chat input
 if prompt := st.chat_input("How can I help you today?", disabled=st.session_state.is_thinking):
