@@ -23,7 +23,7 @@ To be finalized
 This project is currently in early development / prototype phase.
 Features, architecture, and scope may change rapidly.
 📄 License
-Copyright © 2026 Rudra Dubey
+Copyright © 2026 rudra-the-dev
 All rights reserved.
 This repository is not open-source. No permission is granted to use, modify, or distribute the code without explicit consent.
 📬 Contact
