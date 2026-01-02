@@ -53,176 +53,186 @@ def get_ai_response(messages):
             return "Error: Cloud budget exceeded."
         raise e
 
-# Streamlit UI Configuration
 st.set_page_config(page_title="AI Chat Assistant", page_icon="💬", layout="centered")
 
-# Custom CSS to match the card UI
+# Extract CSS and JS logic from the provided reference code
+# and integrate it into Streamlit's markdown system.
 st.markdown("""
 <style>
-    /* Main container styling */
-    .stApp {
-        background-color: #F8F5F0;
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
     }
-    
-    /* Individual Card styling */
-    .custom-card {
-        background-color: #EFE9DE;
-        border-radius: 15px;
-        padding: 25px;
+
+    .stApp {
+        background-color: #f5f1e8;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .cards-wrapper {
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+
+    .cards-container {
+        display: flex;
+        gap: 20px;
+        transition: transform 0.3s ease-out;
+    }
+
+    .card {
+        background: #f9f6f0;
+        border-radius: 16px;
+        padding: 40px 30px;
+        min-height: 280px;
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
+        align-items: flex-start;
         cursor: pointer;
-        transition: transform 0.2s, box-shadow 0.2s;
-        border: none;
-        text-align: left;
-    }
-    
-    /* Card icon styling */
-    .card-icon {
-        font-size: 50px;
-        line-height: 1;
-        margin-bottom: 15px;
-    }
-    
-    .card-title {
-        font-family: 'Serif', 'Georgia', serif;
-        font-size: 18px;
-        font-weight: 600;
-        color: #2D3E33;
-        line-height: 1.2;
-        text-align: center;
-        width: 100%;
-    }
-    
-    /* Custom Banner Styling */
-    .custom-banner {
-        background: linear-gradient(135deg, #2D3E33 0%, #4A5D50 100%);
-        color: #F8F5F0;
-        border-radius: 20px;
-        padding: 40px;
-        margin-bottom: 30px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-    
-    .banner-text h1 {
-        color: #F8F5F0 !important;
-        font-family: 'Serif', 'Georgia', serif;
-        font-size: 36px;
-        margin: 0;
-    }
-    
-    .banner-text p {
-        color: #C2CDC5 !important;
-        font-size: 18px;
-        margin-top: 10px;
-    }
-    
-    /* Card-specific button styling */
-    .card-btn-container {
+        transition: all 0.3s ease;
+        border: 2px solid #0066FF;
         position: relative;
-        width: 100%;
-        height: 200px;
-        margin-bottom: 20px;
+        text-align: left;
+        overflow: hidden;
     }
 
-    .card-btn-container div.stButton > button {
-        background-color: #EFE9DE !important;
-        color: #2D3E33 !important;
-        border-radius: 15px !important;
-        padding: 0 !important;
-        width: 100% !important;
-        height: 200px !important;
-        border: 2px solid #0066FF !important;
-        transition: all 0.2s ease !important;
-        position: relative !important;
-        overflow: hidden !important;
-        z-index: 1 !important;
-        display: block !important;
-        box-shadow: none !important;
-    }
-    
-    /* Hide the default space label in the button */
-    .card-btn-container div.stButton > button p {
-        display: none !important;
-    }
-    
-    .card-btn-container div.stButton > button:hover {
-        transform: translateY(-5px) !important;
-        background-color: #E9E1D3 !important;
-        box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3) !important;
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border-color: #0066FF;
     }
 
-    /* Content styling positioned over the button */
-    .card-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 200px;
-        pointer-events: none;
-        z-index: 2;
-    }
-
-    .card-icon-inner {
+    .icon {
         position: absolute;
         top: 20px;
         right: 20px;
-        font-size: 35px;
+        font-size: 48px;
         line-height: 1;
+        pointer-events: none;
     }
 
-    .card-title-inner {
+    .card-title {
         position: absolute;
         bottom: 20px;
         left: 20px;
-        font-size: 20px;
-        font-weight: 600;
-        line-height: 1.3;
-        font-family: 'Serif', 'Georgia', serif;
-        max-width: 80%;
-        color: #2D3E33;
+        font-size: 24px;
+        font-weight: 500;
+        color: #4a4a4a;
+        line-height: 1.4;
+        margin: 0;
+        max-width: 85%;
+        pointer-events: none;
     }
 
-    /* Target the button's focus/active state with blue boundary */
-    .card-btn-container div.stButton > button:focus, 
-    .card-btn-container div.stButton > button:active {
-        border: 2px solid #0066FF !important;
-        box-shadow: 0 0 0 2px rgba(0, 102, 255, 0.2) !important;
-        outline: none !important;
-    }
-    
-    /* Standard sidebar button styling - reset to default */
-    section[data-testid="stSidebar"] div.stButton > button {
-        background-color: #ffffff !important;
-        color: #31333F !important;
-        border: 1px solid rgba(49, 51, 63, 0.2) !important;
-        height: auto !important;
-        width: auto !important;
-        border-radius: 0.5rem !important;
-        padding: 0.25rem 0.75rem !important;
-        text-align: center !important;
-        box-shadow: none !important;
-        transform: none !important;
-        z-index: auto !important;
-    }
-    
-    section[data-testid="stSidebar"] div.stButton > button:hover {
-        border-color: #ff4b4b !important;
-        color: #ff4b4b !important;
-        background-color: #ffffff !important;
-        transform: none !important;
-        box-shadow: none !important;
+    @media (min-width: 769px) {
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .card {
+            flex: none;
+            width: 100%;
+        }
+
+        .dots {
+            display: none;
+        }
     }
 
-    /* Ensure the button container takes full width */
-    .card-btn-container div.stButton {
+    @media (max-width: 768px) {
+        .cards-wrapper {
+            padding: 0 20px;
+        }
+
+        .cards-container {
+            gap: 20px;
+            padding: 0;
+        }
+
+        .card {
+            flex: 0 0 calc(100vw - 40px);
+        }
+
+        .dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #d4cfc4;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .dot.active {
+            background-color: #8b7f6f;
+            width: 24px;
+            border-radius: 4px;
+        }
+    }
+
+    /* Streamlit button normalization to act as card */
+    div.stButton {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
         width: 100% !important;
+        height: 100% !important;
+        z-index: 5 !important;
+    }
+
+    div.stButton > button {
+        background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        color: transparent !important;
+        box-shadow: none !important;
+        display: block !important;
+    }
+
+    div.stButton > button:hover, 
+    div.stButton > button:active, 
+    div.stButton > button:focus {
+        background: transparent !important;
+        color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
     }
 </style>
+
+<script>
+    function goToSlide(index) {
+        if (window.innerWidth <= 768) {
+            const cardsContainer = window.parent.document.querySelector('.cards-container');
+            if (cardsContainer) {
+                const cardWidth = cardsContainer.querySelector('.card').offsetWidth;
+                const gap = 20;
+                const offset = -(index * (cardWidth + gap));
+                cardsContainer.style.transform = `translateX(${offset}px)`;
+                
+                const dots = window.parent.document.querySelectorAll('.dot');
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === index);
+                });
+            }
+        }
+    }
+</script>
 """, unsafe_allow_html=True)
 
 st.title("💬 AI Chat Assistant")
@@ -263,29 +273,46 @@ if not st.session_state.chat_started and not has_user_messages:
     """, unsafe_allow_html=True)
     
     prompts = [
-        {"label": "🚀 Project Idea", "icon": "🚀", "title": "Start a new project", "text": "I want ideas for a project, but don’t suggest anything yet.\nFirst, ask me a series of specific questions to understand my situation properly. Ask them step by step, not all at once.\nYour questions should cover:\nmy interests and problems I care about\nmy current skills and tools I know\nmy experience level (beginner/intermediate/advanced)\nhow much time I can realistically give\nwhether the project is for learning, competition, portfolio, business, or fun\nconstraints like budget, team size, device, or platform\nAfter I answer all the questions, analyze my responses and:\nsuggest 3–5 project ideas that actually fit me\nexplain why each idea is suitable\nmention the main challenges of each idea\nrecommend one best project to start with\noutline clear next steps to begin (tech stack, first milestone, etc.)\nAvoid generic ideas. Be practical, specific, and honest."},
-        {"label": "💡 Career Advice", "icon": "💡", "title": "Level up your career", "text": "I want career guidance, but don’t give advice immediately.\nFirst, ask me a series of clear and specific questions to understand me properly. Ask them step by step, not all at once.\nYour questions should cover:\nwhat I’m interested in and enjoy doing\nwhat I’m good at and what skills I already have\nwhat I dislike or want to avoid\nwhat kind of work environment suits me\nmy education level and practical limitations\nmy long-term goals, income expectations, and lifestyle preferences\nAfter you finish asking questions and I answer them, analyze my responses honestly and:\nsuggest 3–5 realistic career options\nexplain why each option fits or doesn’t fit me\npoint out any contradictions or unrealistic assumptions in my thinking\nsuggest concrete next steps for the best options\nBe direct, practical, and honest. No motivational fluff."},
-        {"label": "🛠️ Code Debugging", "icon": "🛠️", "title": "Fix some broken code", "text": "I need help debugging some code, but don’t jump to conclusions yet.\nFirst, ask me a sequence of focused questions to fully understand the problem. Ask them step by step, not all at once.\nYour questions should cover:\nthe programming language and environment\nwhat the code is supposed to do\nwhat it is actually doing\nexact error messages or unexpected behavior\nwhere and when the problem occurs\nwhat I’ve already tried\nAfter you have enough information and I answer, then:\nidentify the most likely root cause(s)\nexplain the bug in simple terms\nshow the corrected code\nexplain why the fix works\nsuggest how to prevent this type of bug in the future\nBe precise and technical. Don’t guess. Don’t oversimplify."}
+        {"icon": "🚀", "title": "Start a new project", "text": "I want ideas for a project, but don’t suggest anything yet.\nFirst, ask me a series of specific questions to understand my situation properly. Ask them step by step, not all at once.\nYour questions should cover:\nmy interests and problems I care about\nmy current skills and tools I know\nmy experience level (beginner/intermediate/advanced)\nhow much time I can realistically give\nwhether the project is for learning, competition, portfolio, business, or fun\nconstraints like budget, team size, device, or platform\nAfter I answer all the questions, analyze my responses and:\nsuggest 3–5 project ideas that actually fit me\nexplain why each idea is suitable\nmention the main challenges of each idea\nrecommend one best project to start with\noutline clear next steps to begin (tech stack, first milestone, etc.)\nAvoid generic ideas. Be practical, specific, and honest."},
+        {"icon": "💡", "title": "Level up your career", "text": "I want career guidance, but don’t give advice immediately.\nFirst, ask me a series of clear and specific questions to understand me properly. Ask them step by step, not all at once.\nYour questions should cover:\nwhat I’m interested in and enjoy doing\nwhat I’m good at and what skills I already have\nwhat I dislike or want to avoid\nwhat kind of work environment suits me\nmy education level and practical limitations\nmy long-term goals, income expectations, and lifestyle preferences\nAfter you finish asking questions and I answer them, analyze my responses honestly and:\nsuggest 3–5 realistic career options\nexplain why each option fits or doesn’t fit me\npoint out any contradictions or unrealistic assumptions in my thinking\nsuggest concrete next steps for the best options\nBe direct, practical, and honest. No motivational fluff."},
+        {"icon": "🛠️", "title": "Fix some broken code", "text": "I need help debugging some code, but don’t jump to conclusions yet.\nFirst, ask me a sequence of focused questions to fully understand the problem. Ask them step by step, not all at once.\nYour questions should cover:\nthe programming language and environment\nwhat the code is supposed to do\nwhat it is actually doing\nexact error messages or unexpected behavior\nwhere and when the problem occurs\nwhat I’ve already tried\nAfter you have enough information and I answer, then:\nidentify the most likely root cause(s)\nexplain the bug in simple terms\nshow the corrected code\nexplain why the fix works\nsuggest how to prevent this type of bug in the future\nBe precise and technical. Don’t guess. Don’t oversimplify."}
     ]
+    
+    # Use the HTML structure from the reference file
+    st.markdown(f"""
+    <div class="container">
+        <div class="cards-wrapper">
+            <div class="cards-container" id="cardsContainer">
+    """, unsafe_allow_html=True)
     
     cols = st.columns(3)
     for i, p in enumerate(prompts):
         with cols[i]:
-            st.markdown('<div class="card-btn-container">', unsafe_allow_html=True)
-            # Use an empty button as the background and overlay the content
-            if st.button(" ", key=f"btn_{i}", disabled=st.session_state.is_thinking):
+            # The visual representation of the card
+            # The button is placed inside the card and made invisible/full-size
+            st.markdown(f"""
+            <div class="card" id="card_{i}">
+                <div class="icon">{p['icon']}</div>
+                <h2 class="card-title">{p['title']}</h2>
+            """, unsafe_allow_html=True)
+            
+            if st.button(" ", key=f"btn_inner_{i}"):
                 st.session_state.chat_started = True
                 st.session_state.messages.append({"role": "user", "content": p["text"]})
                 st.rerun()
             
-            # Overlay content with absolute positioning
-            st.markdown(f"""
-            <div class="card-overlay">
-                <div class="card-icon-inner">{p['icon']}</div>
-                <div class="card-title-inner">{p['title']}</div>
+            st.markdown("</div>", unsafe_allow_html=True)
+
+    st.markdown("""
             </div>
-            """, unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
+            <div class="dots" id="dots">
+                <div class="dot active" onclick="goToSlide(0)"></div>
+                <div class="dot" onclick="goToSlide(1)"></div>
+                <div class="dot" onclick="goToSlide(2)"></div>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
 # Chat input
 if prompt := st.chat_input("How can I help you today?", disabled=st.session_state.is_thinking):
