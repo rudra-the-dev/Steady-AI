@@ -80,17 +80,127 @@ HTML_TEMPLATE = '''
             position: sticky;
             top: 0;
             z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .header h1 {
+        .header-left h1 {
             color: #2D3E33;
             font-size: 24px;
             margin-bottom: 5px;
         }
 
-        .header p {
+        .header-left p {
             color: #666;
             font-size: 14px;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 10px;
+        }
+
+        .menu-btn {
+            background-color: #fff;
+            border: 2px solid #E9E1D3;
+            border-radius: 8px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+
+        .menu-btn:hover {
+            background-color: #F8F5F0;
+            border-color: #4A5D50;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100vh;
+            background: white;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+            transition: right 0.3s ease;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .sidebar.open {
+            right: 0;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .sidebar-header h2 {
+            color: #2D3E33;
+            font-size: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .sidebar-content {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .sidebar-btn {
+            background-color: #fff;
+            border: 2px solid #E9E1D3;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            text-align: left;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-btn:hover {
+            background-color: #F8F5F0;
+            border-color: #4A5D50;
+        }
+
+        .sidebar-btn.danger {
+            border-color: #ff4b4b;
+            color: #ff4b4b;
+        }
+
+        .sidebar-btn.danger:hover {
+            background-color: #fff5f5;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .overlay.active {
+            display: block;
         }
 
         .container {
@@ -323,6 +433,45 @@ HTML_TEMPLATE = '''
             color: #666;
         }
 
+        .message-content {
+            line-height: 1.6;
+        }
+
+        .message-content strong {
+            font-weight: 600;
+            color: #2D3E33;
+        }
+
+        .message-content ul, .message-content ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .message-content li {
+            margin: 5px 0;
+        }
+
+        .message-content code {
+            background-color: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        .message-content pre {
+            background-color: #f5f5f5;
+            padding: 12px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+
+        .message-content pre code {
+            background: none;
+            padding: 0;
+        }
+
         .thinking {
             background-color: #FFF3E0;
             padding: 12px 16px;
@@ -393,6 +542,7 @@ HTML_TEMPLATE = '''
             cursor: pointer;
             font-size: 14px;
             margin-bottom: 20px;
+            display: none;
         }
 
         .clear-btn:hover {
@@ -415,9 +565,35 @@ HTML_TEMPLATE = '''
     </style>
 </head>
 <body>
+    <!-- Overlay for sidebar -->
+    <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Settings</h2>
+            <button class="close-btn" onclick="closeSidebar()">✕</button>
+        </div>
+        <div class="sidebar-content">
+            <button class="sidebar-btn danger" onclick="clearChat()">
+                🗑️ Clear Chat Memory
+            </button>
+            <div style="margin-top: 20px; padding: 15px; background-color: #F8F5F0; border-radius: 8px;">
+                <p style="color: #666; font-size: 14px; margin: 0;">
+                    This assistant uses the latest GPT-5 model via Replit AI Integrations.
+                </p>
+            </div>
+        </div>
+    </div>
+
     <div class="header">
-        <h1>💬 AI Chat Assistant</h1>
-        <p>A helpful assistant with memory of our conversation</p>
+        <div class="header-left">
+            <h1>💬 AI Chat Assistant</h1>
+            <p>A helpful assistant with memory of our conversation</p>
+        </div>
+        <div class="header-right">
+            <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+        </div>
     </div>
 
     <div class="container">
@@ -460,7 +636,6 @@ HTML_TEMPLATE = '''
         </div>
 
         <div class="chat-section" id="chatSection">
-            <button class="clear-btn" onclick="clearChat()">🗑️ Clear Chat</button>
             <div class="chat-messages" id="chatMessages"></div>
         </div>
     </div>
@@ -483,17 +658,34 @@ HTML_TEMPLATE = '''
         let chatStarted = false;
         let isThinking = false;
 
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+        }
+
         const prompts = [
             {
                 title: "Start a new project",
+                displayText: "I want to start a new project. Can you help me come up with ideas?",
                 text: "I want ideas for a project, but don't suggest anything yet.\\nFirst, ask me a series of specific questions to understand my situation properly. Ask them step by step, not all at once.\\nYour questions should cover:\\nmy interests and problems I care about\\nmy current skills and tools I know\\nmy experience level (beginner/intermediate/advanced)\\nhow much time I can realistically give\\nwhether the project is for learning, competition, portfolio, business, or fun\\nconstraints like budget, team size, device, or platform\\nAfter I answer all the questions, analyze my responses and:\\nsuggest 3–5 project ideas that actually fit me\\nexplain why each idea is suitable\\nmention the main challenges of each idea\\nrecommend one best project to start with\\noutline clear next steps to begin (tech stack, first milestone, etc.)\\nAvoid generic ideas. Be practical, specific, and honest."
             },
             {
                 title: "Level up your career",
+                displayText: "I want career guidance. Can you help me explore my options?",
                 text: "I want career guidance, but don't give advice immediately.\\nFirst, ask me a series of clear and specific questions to understand me properly. Ask them step by step, not all at once.\\nYour questions should cover:\\nwhat I'm interested in and enjoy doing\\nwhat I'm good at and what skills I already have\\nwhat I dislike or want to avoid\\nwhat kind of work environment suits me\\nmy education level and practical limitations\\nmy long-term goals, income expectations, and lifestyle preferences\\nAfter you finish asking questions and I answer them, analyze my responses honestly and:\\nsuggest 3–5 realistic career options\\nexplain why each option fits or doesn't fit me\\npoint out any contradictions or unrealistic assumptions in my thinking\\nsuggest concrete next steps for the best options\\nBe direct, practical, and honest. No motivational fluff."
             },
             {
                 title: "Fix some broken code",
+                displayText: "I need help debugging some code. Can you assist me?",
                 text: "I need help debugging some code, but don't jump to conclusions yet.\\nFirst, ask me a sequence of focused questions to fully understand the problem. Ask them step by step, not all at once.\\nYour questions should cover:\\nthe programming language and environment\\nwhat the code is supposed to do\\nwhat it is actually doing\\nexact error messages or unexpected behavior\\nwhere and when the problem occurs\\nwhat I've already tried\\nAfter you have enough information and I answer, then:\\nidentify the most likely root cause(s)\\nexplain the bug in simple terms\\nshow the corrected code\\nexplain why the fix works\\nsuggest how to prevent this type of bug in the future\\nBe precise and technical. Don't guess. Don't oversimplify."
             }
         ];
@@ -529,6 +721,11 @@ HTML_TEMPLATE = '''
         function selectCard(index) {
             chatStarted = true;
             document.getElementById('cardsSection').classList.add('hidden');
+            
+            // Show the user-friendly message in the chat
+            addMessage('user', prompts[index].displayText);
+            
+            // Send the detailed hidden prompt to the AI
             sendHiddenMessage(prompts[index].text);
         }
 
@@ -539,10 +736,28 @@ HTML_TEMPLATE = '''
             
             const label = document.createElement('div');
             label.className = 'message-label';
-            label.textContent = role === 'user' ? 'You' : 'Assistant';
+            label.textContent = role === 'user' ? '👤 You' : '🤖 AI Chat Assistant';
             
             const text = document.createElement('div');
-            text.textContent = content;
+            text.className = 'message-content';
+            
+            // Parse markdown-like content
+            let formattedContent = content
+                // Bold text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                // Bullet points
+                .replace(/^- (.+)$/gm, '<li>$1</li>')
+                // Numbered lists
+                .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
+                // Line breaks
+                .replace(/\n/g, '<br>');
+            
+            // Wrap consecutive <li> in <ul>
+            formattedContent = formattedContent.replace(/(<li>.*?<\/li>)+/gs, match => {
+                return '<ul>' + match + '</ul>';
+            });
+            
+            text.innerHTML = formattedContent;
             
             messageDiv.appendChild(label);
             messageDiv.appendChild(text);
@@ -614,7 +829,7 @@ HTML_TEMPLATE = '''
 
             try {
                 const response = await fetch('/send_message', {
-            method: 'POST',
+                    method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({message: message, hidden: false})
                 });
@@ -650,6 +865,7 @@ HTML_TEMPLATE = '''
                 document.getElementById('cardsSection').classList.remove('hidden');
                 currentSlide = 0;
                 goToSlide(0);
+                closeSidebar();
             } catch (error) {
                 console.error('Error clearing chat:', error);
             }
@@ -691,14 +907,7 @@ HTML_TEMPLATE = '''
 def index():
     if 'messages' not in session:
         session['messages'] = [
-            {"role": "You are AI Chat Assistant, a versatile, emotionally intelligent, and highly adaptive digital companion. Your goal is to provide helpful, accurate, and engaging responses while tailoring your personality to the user's specific needs.1. Adaptive Behavior & Tone.You must dynamically adjust your communication style based on the nature of the user's input:Technical/Complex: Provide structured, precise, and professional explanations. Use markdown for clarity.Casual/Conversational: Be friendly, warm, and brief. Act like a helpful peer.Urgent/Direct: Give concise, 'bottom-line-first' answers without unnecessary filler.Creative/Brainstorming: Be enthusiastic, expansive, and encouraging.2. Visual & Expressive GuidelinesEmoji Usage: Use emojis to add personality and visual cues, but ensure they match the tone.
-Casual: 🚀, ✨, 😊
-Professional: 📊, ✅, 💡
-Warning/Note: ⚠️, 🔍
-Formatting: Use bolding for emphasis, bullet points for lists, and clear headings to make responses scannable.3. Core Constraints
-Always identify as AI Chat Assistant if asked.
-Maintain a helpful and proactive 'thought partner'persona.
-If a query is ambiguous, ask brief clarifying questions to better adapt your behavior.}
+            {"role": "system", "content": "You are AI Chat Assistant, a versatile and highly adaptive digital companion. Your goal is to provide helpful and engaging responses while tailoring your personality to the user's needs. Use emojis to add personality and visual cues that match the tone, such as 🚀 for excitement or ✅ for tasks. You must dynamically adjust your behavior based on the question: for technical queries, be structured and professional; for casual chat, be warm and friendly; for urgent requests, be concise and direct; and for creative tasks, be enthusiastic and expansive. Use markdown like bolding and bullet points to ensure clarity. Always identify as AI Chat Assistant and maintain a proactive thought-partner persona. If a query is ambiguous, ask brief clarifying questions to better adapt your behavior."}
         ]
     return render_template_string(HTML_TEMPLATE)
 
@@ -710,7 +919,7 @@ def send_message():
     
     if 'messages' not in session:
         session['messages'] = [
-            {"role": "system", "content": "You are a witty AI assistant that NEVER gives long explanations or answers upfront. Your goal is to be extremely interactive. For EVERY user request, you must ask 2-3 specific follow-up questions to understand their context before providing any real help. Keep your initial responses very short and focused entirely on gathering information."}
+            {"role": "system", "content": "You are AI Chat Assistant, a versatile and highly adaptive digital companion. Your goal is to provide helpful and engaging responses while tailoring your personality to the user's needs. Use emojis to add personality and visual cues that match the tone, such as 🚀 for excitement or ✅ for tasks. You must dynamically adjust your behavior based on the question: for technical queries, be structured and professional; for casual chat, be warm and friendly; for urgent requests, be concise and direct; and for creative tasks, be enthusiastic and expansive. Use markdown like bolding and bullet points to ensure clarity. Always identify as AI Chat Assistant and maintain a proactive thought-partner persona. If a query is ambiguous, ask brief clarifying questions to better adapt your behavior."}
         ]
     
     session['messages'].append({"role": "user", "content": message})
@@ -726,7 +935,7 @@ def send_message():
 @app.route('/clear_chat', methods=['POST'])
 def clear_chat():
     session['messages'] = [
-        {"role": "system", "content": "You are a witty AI assistant that NEVER gives long explanations or answers upfront. Your goal is to be extremely interactive. For EVERY user request, you must ask 2-3 specific follow-up questions to understand their context before providing any real help. Keep your initial responses very short and focused entirely on gathering information."}
+        {"role": "system", "content": "You are AI Chat Assistant, a versatile and highly adaptive digital companion. Your goal is to provide helpful and engaging responses while tailoring your personality to the user's needs. Use emojis to add personality and visual cues that match the tone, such as 🚀 for excitement or ✅ for tasks. You must dynamically adjust your behavior based on the question: for technical queries, be structured and professional; for casual chat, be warm and friendly; for urgent requests, be concise and direct; and for creative tasks, be enthusiastic and expansive. Use markdown like bolding and bullet points to ensure clarity. Always identify as AI Chat Assistant and maintain a proactive thought-partner persona. If a query is ambiguous, ask brief clarifying questions to better adapt your behavior."}
     ]
     session.modified = True
     return jsonify({"status": "success"})
